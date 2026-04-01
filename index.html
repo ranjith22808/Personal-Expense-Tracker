@@ -12,8 +12,7 @@
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         .modal-slide-up { transition: transform 0.3s ease-out; transform: translateY(100%); }
         .modal-active { transform: translateY(0); }
-        .tab-active { color: #4f46e5 !important; }
-        .tab-active svg { stroke: #4f46e5; stroke-width: 3px; }
+        .tab-active { color: #4f46e5 !important; border-bottom: 2px solid #4f46e5; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -32,51 +31,70 @@
 
     <div class="p-4 space-y-4">
         <div id="view-home"><div id="transaction-list" class="space-y-3"></div></div>
-        <div id="view-stocks" class="hidden space-y-4"><h2 class="text-xl font-black text-gray-800">Portfolio</h2><div id="stock-list" class="grid grid-cols-1 gap-3"></div></div>
-        <div id="view-debt" class="hidden space-y-4"><h2 class="text-xl font-black text-gray-800">Loans Paid</h2><div id="debt-list" class="grid grid-cols-1 gap-3"></div><div class="bg-red-50 p-4 rounded-2xl border border-red-100"><p class="text-[10px] font-black text-red-400 uppercase">Total Debt Paid</p><p id="total-debt-amt" class="text-2xl font-black text-red-700">₹0</p></div></div>
         
-        <div id="view-report" class="hidden space-y-6">
-            <h2 class="text-xl font-black text-gray-800">Reports</h2>
+        <div id="view-stocks" class="hidden space-y-4"><h2 class="text-xl font-black text-gray-800">Portfolio</h2><div id="stock-list" class="grid grid-cols-1 gap-3"></div></div>
+        
+        <div id="view-debt" class="hidden space-y-4">
+            <h2 class="text-xl font-black text-gray-800">Loans & EMIs</h2>
+            <div id="debt-list" class="grid grid-cols-1 gap-3"></div>
+            <div class="bg-red-50 p-4 rounded-2xl border border-red-100 text-center"><p id="total-debt-amt" class="text-2xl font-black text-red-700">₹0</p></div>
+        </div>
+        
+        <div id="view-report" class="hidden space-y-5">
+            <h2 class="text-xl font-black text-gray-800">Analytics</h2>
+            <div class="bg-white p-4 rounded-3xl border shadow-sm space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="date" id="filter-from" class="bg-gray-50 p-2 rounded-xl text-xs border">
+                    <input type="date" id="filter-to" class="bg-gray-50 p-2 rounded-xl text-xs border">
+                </div>
+                <select id="report-cat-filter" class="w-full bg-gray-50 p-2 rounded-xl text-xs border"></select>
+                <button onclick="window.generateAnalytics()" class="w-full bg-indigo-600 text-white py-2 rounded-xl font-bold text-sm">Apply Filters</button>
+            </div>
             <div class="bg-white p-4 rounded-3xl border shadow-sm"><canvas id="expenseChart"></canvas></div>
             <div id="report-list" class="bg-white p-5 rounded-3xl border space-y-3"></div>
-            <button onclick="window.downloadExcel()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg">📥 Download Excel</button>
+            <button onclick="window.downloadExcel()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold">📥 Download Excel</button>
         </div>
 
         <div id="view-settings" class="hidden space-y-6">
             <h2 class="text-xl font-black text-gray-800">Settings</h2>
-            <div class="bg-white p-5 rounded-3xl border space-y-3 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Update Categories</p>
-                <input type="text" id="new-cat-name" placeholder="Existing/New Name" class="w-full p-3 bg-gray-50 rounded-xl border">
-                <input type="text" id="new-cat-icon" placeholder="Icon (Emoji)" class="w-full p-3 bg-gray-50 rounded-xl border">
-                <input type="text" id="new-cat-subs" placeholder="Add Sub-items (Comma separated)" class="w-full p-3 bg-gray-50 rounded-xl border">
-                <button onclick="window.saveCategory()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Save / Merge Items</button>
+            <div class="bg-white p-5 rounded-3xl border shadow-sm space-y-3">
+                <input type="text" id="new-cat-name" list="default-cat-list" placeholder="Category Name" class="w-full p-3 bg-gray-50 rounded-xl border">
+                <datalist id="default-cat-list">
+                    <option value="Grocery"><option value="Investment"><option value="Liabilities"><option value="Childrens"><option value="Travel">
+                </datalist>
+                <input type="text" id="new-cat-icon" placeholder="Emoji Icon" class="w-full p-3 bg-gray-50 rounded-xl border">
+                <textarea id="new-cat-subs" placeholder="Sub-categories (comma separated)" class="w-full p-3 bg-gray-50 rounded-xl border h-20"></textarea>
+                <button onclick="window.saveCategory()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Save Category</button>
             </div>
-            <div class="bg-white p-5 rounded-3xl border space-y-3 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Banks/Wallets</p>
-                <input type="text" id="new-pay-method" placeholder="Bank Name" class="w-full p-3 bg-gray-50 rounded-xl border">
-                <button onclick="window.savePaymentMethod()" class="w-full bg-gray-800 text-white py-3 rounded-xl font-bold text-sm">Add Bank</button>
+            <div class="bg-white p-5 rounded-3xl border shadow-sm space-y-3">
+                <input type="text" id="new-pay-method" placeholder="Add Bank Name" class="w-full p-3 bg-gray-50 rounded-xl border">
+                <button onclick="window.savePaymentMethod()" class="w-full bg-gray-800 text-white py-3 rounded-xl font-bold">Add Bank</button>
             </div>
         </div>
     </div>
 
     <nav class="fixed bottom-0 w-full bg-white border-t flex justify-between px-2 py-3 items-center z-40 pb-8 shadow-2xl">
         <button onclick="window.switchView('home')" id="nav-home" class="tab-active flex-1 flex flex-col items-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
             <span class="text-[8px] mt-1 font-bold">HOME</span>
         </button>
         <button onclick="window.switchView('stocks')" id="nav-stocks" class="text-gray-400 flex-1 flex flex-col items-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
             <span class="text-[8px] mt-1 font-bold">STOCKS</span>
         </button>
         <button onclick="window.openModal()" class="bg-indigo-700 text-white p-4 rounded-2xl -mt-16 shadow-2xl active:scale-75 transition-all">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
         </button>
+        <button onclick="window.switchView('debt')" id="nav-debt" class="text-gray-400 flex-1 flex flex-col items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[8px] mt-1 font-bold">LOAN</span>
+        </button>
         <button onclick="window.switchView('report')" id="nav-report" class="text-gray-400 flex-1 flex flex-col items-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2"></path></svg>
             <span class="text-[8px] mt-1 font-bold">REPORT</span>
         </button>
         <button onclick="window.switchView('settings')" id="nav-settings" class="text-gray-400 flex-1 flex flex-col items-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4"></path></svg>
             <span class="text-[8px] mt-1 font-bold">SETTING</span>
         </button>
     </nav>
@@ -85,20 +103,21 @@
         <div class="bg-white w-full rounded-t-[3rem] p-8 modal-slide-up max-h-[90vh] overflow-y-auto">
             <form id="transactionForm" class="space-y-4">
                 <input type="hidden" id="editId">
-                <div class="flex bg-gray-100 p-1.5 rounded-2xl">
+                <div class="flex bg-gray-100 p-1 rounded-2xl">
                     <button type="button" id="typeExp" onclick="window.setType('Expense')" class="flex-1 py-3 rounded-xl font-bold bg-white text-red-600 shadow-sm">EXPENSE</button>
                     <button type="button" id="typeInc" onclick="window.setType('Income')" class="flex-1 py-3 rounded-xl font-bold text-gray-500">INCOME</button>
                 </div>
                 <input type="number" id="amount" placeholder="₹ 0.00" class="w-full text-5xl font-black p-4 text-center bg-transparent outline-none" required>
                 <div class="space-y-4">
-                    <select id="category" onchange="window.updateSubCats()" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none"></select>
-                    <select id="subCategory" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none"></select>
-                    <select id="account" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none"></select>
-                    <input type="text" id="note" placeholder="Note" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
+                    <select id="category" onchange="window.updateSubCats()" class="w-full p-4 bg-gray-50 rounded-2xl font-bold"></select>
+                    <select id="subCategory" class="w-full p-4 bg-gray-50 rounded-2xl font-bold"></select>
+                    <select id="account" class="w-full p-4 bg-gray-50 rounded-2xl font-bold"></select>
+                    <input type="text" id="note" placeholder="Note (Capital Each Word)" list="note-history" class="w-full p-4 bg-gray-50 rounded-2xl border-none">
+                    <datalist id="note-history"></datalist>
                 </div>
                 <div class="flex gap-3 pt-4">
-                    <button type="button" id="deleteBtn" onclick="window.confirmDelete()" class="hidden flex-1 bg-red-50 text-red-600 py-4 rounded-2xl font-bold text-xs uppercase">Delete</button>
-                    <button type="submit" class="flex-[2] bg-indigo-700 text-white py-4 rounded-2xl font-black text-lg shadow-xl">SAVE</button>
+                    <button type="button" id="deleteBtn" onclick="window.confirmDelete()" class="hidden flex-1 bg-red-50 text-red-600 py-4 rounded-2xl font-bold">DELETE</button>
+                    <button type="submit" class="flex-[2] bg-indigo-700 text-white py-4 rounded-2xl font-black text-lg">SAVE</button>
                 </div>
                 <button type="button" onclick="window.closeModal()" class="w-full text-gray-400 font-bold text-sm">CLOSE</button>
             </form>
@@ -128,153 +147,126 @@
             "Liabilities": {icon: "🏦", subs: ["Home Loan", "Bike Loan"]},
             "Income": {icon: "💰", subs: ["Salary", "Business"]}
         };
-        const defaultPay = ["Cash", "HDFC Bank", "PhonePe"];
+        const defaultPay = ["Cash", "HDFC Bank", "SBI Bank", "PhonePe"];
 
         document.getElementById('header-date').innerText = new Date().toDateString();
 
-        // SYNC CATEGORIES
+        // NOTE CAPITALIZE
+        document.getElementById('note').addEventListener('input', (e) => {
+            e.target.value = e.target.value.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        });
+
+        // SYNC CATEGORIES & PAYMENTS
         onSnapshot(collection(db, "categories"), (snap) => {
-            const catSel = document.getElementById('category'); catSel.innerHTML = "";
+            const catSel = document.getElementById('category');
+            const rptCat = document.getElementById('report-cat-filter');
+            catSel.innerHTML = ""; rptCat.innerHTML = '<option value="All">All Categories</option>';
             dynamicCats = JSON.parse(JSON.stringify(defaultCats));
             snap.forEach(d => { const data = d.data(); dynamicCats[data.name] = {subs: data.subs, icon: data.icon}; });
-            Object.entries(dynamicCats).forEach(([k,v]) => catSel.innerHTML += `<option value="${k}">${v.icon} ${k}</option>`);
+            Object.entries(dynamicCats).forEach(([k,v]) => {
+                const opt = `<option value="${k}">${v.icon} ${k}</option>`;
+                catSel.innerHTML += opt; rptCat.innerHTML += opt;
+            });
             updateSubCats();
         });
 
-        // SYNC PAYMENTS
         onSnapshot(collection(db, "payment_methods"), (snap) => {
             const accSel = document.getElementById('account'); accSel.innerHTML = "";
-            let methods = [...defaultPay];
-            snap.forEach(d => methods.push(d.data().name));
-            [...new Set(methods)].forEach(p => accSel.innerHTML += `<option value="${p}">${p}</option>`);
+            let m = [...defaultPay]; snap.forEach(d => m.push(d.data().name));
+            [...new Set(m)].forEach(p => accSel.innerHTML += `<option value="${p}">${p}</option>`);
         });
 
         window.updateSubCats = () => {
-            const main = document.getElementById('category').value;
-            const subSel = document.getElementById('subCategory'); subSel.innerHTML = "";
-            if(dynamicCats[main]) dynamicCats[main].subs.forEach(s => subSel.innerHTML += `<option value="${s}">${s}</option>`);
+            const m = document.getElementById('category').value;
+            const sub = document.getElementById('subCategory'); sub.innerHTML = "";
+            if(dynamicCats[m]) dynamicCats[m].subs.forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`);
         };
 
-        // NAVIGATION (FIXED)
-        window.switchView = (view) => {
-            const views = ['home', 'stocks', 'debt', 'report', 'settings'];
-            views.forEach(v => {
-                const el = document.getElementById(`view-${v}`);
-                const nav = document.getElementById(`nav-${v}`);
-                if(el) el.classList.toggle('hidden', v !== view);
-                if(nav) nav.classList.toggle('tab-active', v === view);
-                if(nav) nav.classList.toggle('text-gray-400', v !== view);
+        // VIEW NAVIGATION (FIXED 6 OPTIONS)
+        window.switchView = (v) => {
+            ['home', 'stocks', 'debt', 'report', 'settings'].forEach(view => {
+                document.getElementById(`view-${view}`).classList.toggle('hidden', view !== v);
+                document.getElementById(`nav-${view}`).classList.toggle('tab-active', view === v);
             });
-            if(view === 'report') generateAnalytics();
-            if(view === 'stocks') renderStocks();
-            if(view === 'debt') renderDebts();
+            if(v === 'report') generateAnalytics();
+            if(v === 'stocks') renderStocks();
+            if(v === 'debt') renderDebts();
         };
 
-        // CATEGORY MERGE LOGIC (FIXED)
+        // SETTINGS SAVE (MERGE LOGIC)
         window.saveCategory = async () => {
-            const name = document.getElementById('new-cat-name').value.trim();
-            const icon = document.getElementById('new-cat-icon').value.trim();
-            const newSubs = document.getElementById('new-cat-subs').value.split(',').map(s => s.trim()).filter(s => s !== "");
-            if(!name || !icon) return alert("Enter Name and Icon");
-
-            const q = query(collection(db, "categories"), where("name", "==", name));
-            const querySnap = await getDocs(q);
-
-            if(!querySnap.empty) {
-                const docId = querySnap.docs[0].id;
-                const oldSubs = querySnap.docs[0].data().subs || [];
-                const combined = [...new Set([...oldSubs, ...newSubs])];
-                await updateDoc(doc(db, "categories", docId), { icon, subs: combined });
-                alert("Items Merged!");
-            } else {
-                await addDoc(collection(db, "categories"), { name, icon, subs: newSubs });
-                alert("Saved!");
-            }
-            document.getElementById('new-cat-name').value = ""; document.getElementById('new-cat-subs').value = "";
+            const n = document.getElementById('new-cat-name').value.trim();
+            const i = document.getElementById('new-cat-icon').value.trim();
+            const s = document.getElementById('new-cat-subs').value.split(',').map(x => x.trim()).filter(x => x !== "");
+            if(!n || !i) return alert("Fill Name and Icon");
+            const q = query(collection(db, "categories"), where("name", "==", n));
+            const snap = await getDocs(q);
+            if(!snap.empty) {
+                const old = snap.docs[0].data().subs || [];
+                await updateDoc(doc(db, "categories", snap.docs[0].id), { icon: i, subs: [...new Set([...old, ...s])] });
+            } else { await addDoc(collection(db, "categories"), { name: n, icon: i, subs: s }); }
+            alert("Saved!"); document.getElementById('new-cat-name').value = ""; document.getElementById('new-cat-subs').value = "";
         };
 
         window.savePaymentMethod = async () => {
-            const name = document.getElementById('new-pay-method').value.trim();
-            if(name) await addDoc(collection(db, "payment_methods"), { name });
-            document.getElementById('new-pay-method').value = ""; alert("Bank Added!");
+            const n = document.getElementById('new-pay-method').value.trim();
+            if(n) await addDoc(collection(db, "payment_methods"), { name: n });
+            alert("Bank Added!"); document.getElementById('new-pay-method').value = "";
         };
 
-        // MODAL
-        window.openModal = (item = null) => {
-            document.getElementById('editId').value = item ? item.id : "";
-            document.getElementById('deleteBtn').classList.toggle('hidden', !item);
-            if(item) {
-                document.getElementById('amount').value = item.amount;
-                document.getElementById('category').value = item.category;
-                updateSubCats();
-                document.getElementById('subCategory').value = item.subCategory;
-                document.getElementById('account').value = item.account;
-                document.getElementById('note').value = item.note;
-                setType(item.type);
-            } else { document.getElementById('transactionForm').reset(); setType('Expense'); }
-            document.getElementById('entryModal').classList.remove('hidden');
-            setTimeout(() => document.querySelector('.modal-slide-up').classList.add('modal-active'), 10);
-        };
-
-        window.closeModal = () => { document.querySelector('.modal-slide-up').classList.remove('modal-active'); setTimeout(() => document.getElementById('entryModal').classList.add('hidden'), 300); };
-        window.setType = (t) => { currentType = t; document.getElementById('typeExp').className = t==='Expense' ? "flex-1 py-3 rounded-xl font-bold bg-white text-red-600 shadow-sm" : "flex-1 py-3 rounded-xl font-bold text-gray-500"; document.getElementById('typeInc').className = t==='Income' ? "flex-1 py-3 rounded-xl font-bold bg-white text-green-600 shadow-sm" : "flex-1 py-3 rounded-xl font-bold text-gray-500"; };
-
-        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('editId').value;
-            const payload = {
-                type: currentType, amount: parseFloat(document.getElementById('amount').value),
-                category: document.getElementById('category').value, subCategory: document.getElementById('subCategory').value,
-                account: document.getElementById('account').value, note: document.getElementById('note').value,
-                date: id ? allData.find(x => x.id === id).date : serverTimestamp()
-            };
-            id ? await updateDoc(doc(db, "transactions", id), payload) : await addDoc(collection(db, "transactions"), payload);
-            closeModal();
-        });
-
-        // SYNC TRANSACTIONS
+        // SYNC TRANSACTIONS (HOME VIEW SHOWS CAT, SUB, NOTE)
         onSnapshot(query(collection(db, "transactions"), orderBy("date", "desc")), (snap) => {
             allData = []; let inc = 0, exp = 0;
             const list = document.getElementById('transaction-list'); list.innerHTML = "";
+            const dl = document.getElementById('note-history'); dl.innerHTML = "";
+            const notes = new Set();
             snap.forEach(d => {
                 const item = {id: d.id, ...d.data()}; allData.push(item);
                 if(item.type === 'Income') inc += item.amount; else exp += item.amount;
+                if(item.note && !notes.has(item.note)) { notes.add(item.note); dl.innerHTML += `<option value="${item.note}">`; }
                 const icon = dynamicCats[item.category]?.icon || '💰';
-                list.innerHTML += `<div class="bg-white p-4 rounded-3xl flex justify-between shadow-sm border border-gray-100" onclick='window.openModal(${JSON.stringify(item)})'>
-                    <div><p class="font-black text-gray-800 text-sm">${item.category}</p><p class="text-[9px] text-gray-400 font-bold uppercase">${item.subCategory}</p></div>
-                    <p class="font-black ${item.type === 'Income' ? 'text-green-600' : 'text-red-500'}">${item.type==='Income'?'+':'-'}₹${item.amount.toLocaleString()}</p>
+                list.innerHTML += `<div class="bg-white p-4 rounded-3xl flex justify-between items-center shadow-sm border border-gray-100" onclick='window.openModal(${JSON.stringify(item)})'>
+                    <div>
+                        <p class="font-black text-gray-800 text-sm">${icon} ${item.category}</p>
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">${item.subCategory}</p>
+                        <p class="text-[10px] text-indigo-500 italic font-medium">${item.note || ''}</p>
+                    </div>
+                    <p class="font-black ${item.type === 'Income' ? 'text-green-600' : 'text-red-500'}">₹${item.amount.toLocaleString()}</p>
                 </div>`;
             });
             document.getElementById('total-income').innerText = `₹${inc.toLocaleString()}`;
             document.getElementById('total-expense').innerText = `₹${exp.toLocaleString()}`;
         });
 
-        // VIEW HELPERS
-        function renderStocks() {
-            const list = document.getElementById('stock-list'); const stocks = allData.filter(t => t.category === "Investment");
-            list.innerHTML = stocks.map(t => `<div class="bg-white p-4 rounded-3xl border border-indigo-100 flex justify-between"><p class="font-bold text-gray-800 text-sm">${t.note || t.subCategory}</p><p class="font-black text-indigo-700">₹${t.amount.toLocaleString()}</p></div>`).join('') || '<p class="text-center py-20 text-gray-400">No stocks.</p>';
-        }
+        // ANALYTICS (FILTERS ADDED)
+        window.generateAnalytics = () => {
+            const f = document.getElementById('filter-from').value;
+            const t = document.getElementById('filter-to').value;
+            const c = document.getElementById('report-cat-filter').value;
+            let filtered = allData.filter(x => x.type === 'Expense');
+            if(f && t) filtered = filtered.filter(x => { const d = x.date?.toDate().toISOString().split('T')[0]; return d >= f && d <= t; });
+            if(c !== 'All') filtered = filtered.filter(x => x.category === c);
 
-        function renderDebts() {
-            const list = document.getElementById('debt-list'); let total = 0; const debts = {};
-            allData.filter(t => t.category === "Liabilities").forEach(t => { debts[t.subCategory] = (debts[t.subCategory] || 0) + t.amount; total += t.amount; });
-            list.innerHTML = Object.entries(debts).map(([k,v]) => `<div class="bg-white p-4 rounded-3xl border border-red-100 flex justify-between"><p class="font-black text-gray-800 text-sm">${k}</p><p class="font-black text-red-600">₹${v.toLocaleString()}</p></div>`).join('') || '<p class="text-center py-20 text-gray-400">No EMIs.</p>';
-            document.getElementById('total-debt-amt').innerText = `₹${total.toLocaleString()}`;
-        }
-
-        function generateAnalytics() {
-            const stats = {}; allData.filter(t => t.type === 'Expense').forEach(t => stats[t.category] = (stats[t.category] || 0) + t.amount);
+            const stats = {}; filtered.forEach(x => stats[x.category] = (stats[x.category] || 0) + x.amount);
             const ctx = document.getElementById('expenseChart').getContext('2d'); if(myChart) myChart.destroy();
             myChart = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(stats), datasets: [{ data: Object.values(stats), backgroundColor: ['#4f46e5', '#ef4444', '#10b981', '#f59e0b'] }] }, options: { cutout: '75%', plugins: { legend: { position: 'bottom' } } } });
             document.getElementById('report-list').innerHTML = Object.entries(stats).map(([k,v]) => `<div class="flex justify-between font-bold text-sm"><span>${k}</span><span class="text-indigo-600">₹${v.toLocaleString()}</span></div>`).join('');
-        }
-
-        window.confirmDelete = async () => { if(confirm("Delete?")) { await deleteDoc(doc(db, "transactions", document.getElementById('editId').value)); closeModal(); } };
-        window.downloadExcel = () => {
-            const ws = XLSX.utils.json_to_sheet(allData.map(t => ({ Date: t.date?.toDate().toLocaleDateString(), Type: t.type, Category: t.category, Amt: t.amount, Note: t.note })));
-            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Financials");
-            XLSX.writeFile(wb, "Report.xlsx");
         };
+
+        window.downloadExcel = () => {
+            const sheetData = allData.map(t => ({ Date: t.date?.toDate().toLocaleDateString(), Type: t.type, Category: t.category, Sub: t.subCategory, Amt: t.amount, Account: t.account, Note: t.note }));
+            const ws = XLSX.utils.json_to_sheet(sheetData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Financials");
+            XLSX.writeFile(wb, "Wealth_Report.xlsx");
+        };
+
+        // Standard Modal Helpers
+        window.openModal = (i=null) => { document.getElementById('editId').value = i?i.id:""; document.getElementById('deleteBtn').classList.toggle('hidden',!i); if(i){ document.getElementById('amount').value=i.amount; document.getElementById('category').value=i.category; updateSubCats(); document.getElementById('subCategory').value=i.subCategory; document.getElementById('account').value=i.account; document.getElementById('note').value=i.note; setType(i.type); } else { document.getElementById('transactionForm').reset(); setType('Expense'); } document.getElementById('entryModal').classList.remove('hidden'); setTimeout(()=>document.querySelector('.modal-slide-up').classList.add('modal-active'),10); };
+        window.closeModal = () => { document.querySelector('.modal-slide-up').classList.remove('modal-active'); setTimeout(()=>document.getElementById('entryModal').classList.add('hidden'),300); };
+        window.setType = (t) => { currentType = t; document.getElementById('typeExp').className = t==='Expense' ? "flex-1 py-3 rounded-xl font-bold bg-white text-red-600 shadow-sm" : "flex-1 py-3 rounded-xl font-bold text-gray-500"; document.getElementById('typeInc').className = t==='Income' ? "flex-1 py-3 rounded-xl font-bold bg-white text-green-600 shadow-sm" : "flex-1 py-3 rounded-xl font-bold text-gray-500"; };
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('editId').value; const p = { type: currentType, amount: parseFloat(document.getElementById('amount').value), category: document.getElementById('category').value, subCategory: document.getElementById('subCategory').value, account: document.getElementById('account').value, note: document.getElementById('note').value, date: id ? allData.find(x => x.id === id).date : serverTimestamp() }; id ? await updateDoc(doc(db, "transactions", id), p) : await addDoc(collection(db, "transactions"), p); closeModal(); });
+        window.confirmDelete = async () => { if(confirm("Delete?")) { await deleteDoc(doc(db, "transactions", document.getElementById('editId').value)); closeModal(); } };
+        function renderStocks() { const s = allData.filter(t => t.category === "Investment"); document.getElementById('stock-list').innerHTML = s.map(t => `<div class="bg-white p-4 rounded-3xl border border-indigo-100 flex justify-between"><p class="font-bold text-gray-800 text-sm">${t.note || t.subCategory}</p><p class="font-black text-indigo-700">₹${t.amount.toLocaleString()}</p></div>`).join('') || '<p class="text-center py-20 text-gray-400">No stocks.</p>'; }
+        function renderDebts() { const debts = {}; let total = 0; allData.filter(t => t.category === "Liabilities").forEach(t => { debts[t.subCategory] = (debts[t.subCategory] || 0) + t.amount; total += t.amount; }); document.getElementById('debt-list').innerHTML = Object.entries(debts).map(([k,v]) => `<div class="bg-white p-4 rounded-3xl border border-red-50 flex justify-between"><p class="font-black text-gray-800 text-sm">${k}</p><p class="font-black text-red-600">₹${v.toLocaleString()}</p></div>`).join('') || '<p class="text-center py-20 text-gray-400">No EMIs.</p>'; document.getElementById('total-debt-amt').innerText = `₹${total.toLocaleString()}`; }
     </script>
 </body>
 </html>
