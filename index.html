@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ranjith'S Wealth Pro v10.2</title>
-    
+    <title>Ranjith'S Wealth Pro v10.3</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2845/2845862.png">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,7 +14,7 @@
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         .modal-slide-up { transition: transform 0.3s ease-out; transform: translateY(100%); }
         .modal-active { transform: translateY(0); }
-        .tab-active { color: #4f46e5 !important; border-bottom: 3px solid #4f46e5; }
+        .tab-active { color: #4f46e5 !important; border-bottom: 2px solid #4f46e5; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -36,22 +32,14 @@
     </div>
 
     <div class="p-4 space-y-4">
-        <div id="view-home"><div id="transaction-list" class="space-y-3"></div></div>
-        
-        <div id="view-stocks" class="hidden space-y-4">
-            <h2 class="text-xl font-black text-gray-800">Portfolio</h2>
-            <div id="stock-list" class="grid grid-cols-1 gap-3"></div>
-        </div>
-        
-        <div id="view-debt" class="hidden space-y-4">
+        <div id="view-home" class="view-section"><div id="transaction-list" class="space-y-3"></div></div>
+        <div id="view-stocks" class="view-section hidden"><h2 class="text-xl font-black text-gray-800">Portfolio</h2><div id="stock-list" class="grid grid-cols-1 gap-3"></div></div>
+        <div id="view-debt" class="view-section hidden">
             <h2 class="text-xl font-black text-gray-800">Loan Balances</h2>
             <div id="debt-list" class="grid grid-cols-1 gap-3"></div>
-            <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 text-center">
-                <p id="total-remaining-debt" class="text-2xl font-black text-indigo-900">₹0</p>
-            </div>
+            <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 text-center"><p id="total-remaining-debt" class="text-2xl font-black text-indigo-900">₹0</p></div>
         </div>
-        
-        <div id="view-report" class="hidden space-y-6">
+        <div id="view-report" class="view-section hidden">
             <div class="bg-white p-4 rounded-3xl border shadow-sm space-y-3">
                 <div class="grid grid-cols-2 gap-2">
                     <input type="date" id="filter-from" class="bg-gray-50 p-2 rounded-xl text-xs border">
@@ -63,29 +51,22 @@
             <div id="report-list" class="bg-white p-5 rounded-3xl border space-y-3"></div>
             <button onclick="window.downloadExcel()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold">Download Excel</button>
         </div>
-
-        <div id="view-settings" class="hidden space-y-6 text-center">
+        <div id="view-settings" class="view-section hidden text-center">
             <h2 class="text-xl font-black text-gray-800">Settings</h2>
-            <p class="text-[10px] font-bold text-gray-400 bg-gray-100 py-1 px-3 rounded-full inline-block">App Version: 10.2</p>
-            
-            <div class="bg-white p-5 rounded-3xl border space-y-3 shadow-sm text-left">
-                <p class="text-[10px] font-black text-gray-400 uppercase text-center tracking-widest">Manage Categories</p>
+            <p class="text-[10px] font-bold text-gray-400 bg-gray-100 py-1 px-3 rounded-full inline-block">v10.3</p>
+            <div class="bg-white p-5 rounded-3xl border mt-4 space-y-3 text-left">
                 <input type="text" id="new-cat-name" placeholder="Category Name" class="w-full p-3 bg-gray-50 rounded-xl border">
-                <input type="text" id="new-cat-icon" placeholder="Emoji Icon" class="w-full p-3 bg-gray-50 rounded-xl border">
-                <input type="text" id="new-cat-subs" placeholder="Sub-items (comma separated)" class="w-full p-3 bg-gray-50 rounded-xl border">
+                <input type="text" id="new-cat-icon" placeholder="Emoji" class="w-full p-3 bg-gray-50 rounded-xl border">
+                <input type="text" id="new-cat-subs" placeholder="Sub-items (comma)" class="w-full p-3 bg-gray-50 rounded-xl border">
                 <button onclick="window.saveCategory()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Save Category</button>
             </div>
-
-            <div class="bg-white p-5 rounded-3xl border space-y-3 shadow-sm text-left">
-                <p class="text-[10px] font-black text-gray-400 uppercase text-center tracking-widest">Bank Details</p>
+            <div class="bg-white p-5 rounded-3xl border mt-4 space-y-3 text-left">
                 <input type="text" id="new-pay-method" placeholder="Bank Name" class="w-full p-3 bg-gray-50 rounded-xl border">
                 <button onclick="window.savePaymentMethod()" class="w-full bg-gray-800 text-white py-3 rounded-xl font-bold">Add Bank</button>
             </div>
-
-            <div class="bg-white p-5 rounded-3xl border space-y-3 shadow-sm text-left">
-                <p class="text-[10px] font-black text-gray-400 uppercase text-center tracking-widest">Loan Tracking Setup</p>
-                <input type="text" id="loan-setup-name" placeholder="Loan Name (match sub-cat)" class="w-full p-3 bg-gray-50 rounded-xl border">
-                <input type="number" id="loan-setup-amt" placeholder="Total Amount" class="w-full p-3 bg-gray-50 rounded-xl border">
+            <div class="bg-white p-5 rounded-3xl border mt-4 space-y-3 text-left">
+                <input type="text" id="loan-setup-name" placeholder="Loan Name" class="w-full p-3 bg-gray-50 rounded-xl border">
+                <input type="number" id="loan-setup-amt" placeholder="Total Loan Amt" class="w-full p-3 bg-gray-50 rounded-xl border">
                 <button onclick="window.saveLoanBase()" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold">Set Loan Base</button>
             </div>
         </div>
@@ -105,14 +86,14 @@
         </button>
         <button onclick="window.switchView('debt')" id="nav-debt" class="text-gray-400 flex-1 flex flex-col items-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            <span class="text-[8px] mt-1 font-bold">LOAN</span>
+            <span class="text-[8px] mt-1 font-bold uppercase">Loan</span>
         </button>
         <button onclick="window.switchView('report')" id="nav-report" class="text-gray-400 flex-1 flex flex-col items-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2"></path></svg>
             <span class="text-[8px] mt-1 font-bold">REPORT</span>
         </button>
         <button onclick="window.switchView('settings')" id="nav-settings" class="text-gray-400 flex-1 flex flex-col items-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4"></path></svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4"></path></svg>
             <span class="text-[8px] mt-1 font-bold">SETTING</span>
         </button>
     </nav>
@@ -127,14 +108,14 @@
                 </div>
                 <input type="number" id="amount" placeholder="₹ 0.00" class="w-full text-5xl font-black p-4 text-center bg-transparent outline-none" required>
                 <div class="space-y-4">
-                    <select id="category" onchange="window.updateSubCats()" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none"></select>
-                    <select id="subCategory" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none"></select>
-                    <select id="account" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none outline-none"></select>
+                    <select id="category" onchange="window.updateSubCats()" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none"></select>
+                    <select id="subCategory" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none"></select>
+                    <select id="account" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border-none"></select>
                     <input type="text" id="note" placeholder="Note" list="note-history" class="w-full p-4 bg-gray-50 rounded-2xl border-none font-medium">
                     <datalist id="note-history"></datalist>
                 </div>
                 <div class="flex gap-3 pt-4">
-                    <button type="button" id="deleteBtn" onclick="window.confirmDelete()" class="hidden flex-1 bg-red-50 text-red-600 py-4 rounded-2xl font-bold text-xs">DELETE</button>
+                    <button type="button" id="deleteBtn" onclick="window.confirmDelete()" class="hidden flex-1 bg-red-50 text-red-600 py-4 rounded-2xl font-bold text-xs uppercase">Delete</button>
                     <button type="submit" class="flex-[2] bg-indigo-700 text-white py-4 rounded-2xl font-black text-lg">SAVE</button>
                 </div>
                 <button type="button" onclick="window.closeModal()" class="w-full text-gray-400 font-bold text-sm">CLOSE</button>
@@ -159,55 +140,53 @@
         const db = getFirestore(app);
         let currentType = 'Expense', allData = [], dynamicCats = {}, loanBases = {}, myChart = null;
 
-        const defaultCats = {
-            "Grocery": {icon: "🛒", subs: ["Milk", "Veg", "General"]},
-            "Investment": {icon: "📈", subs: ["Stock Buy", "Mutual Fund"]},
-            "Liabilities": {icon: "🏦", subs: ["Home Loan", "Bike Loan"]},
-            "Income": {icon: "💰", subs: ["Salary", "Business"]}
-        };
-        const defaultPay = ["Cash", "HDFC Bank", "PhonePe"];
+        const defaultCats = { "Grocery": {icon: "🛒", subs: ["Milk", "Veg"]}, "Investment": {icon: "📈", subs: ["Stock"]}, "Liabilities": {icon: "🏦", subs: ["Loan"]}, "Income": {icon: "💰", subs: ["Salary"]} };
+        const defaultPay = ["Cash", "HDFC Bank"];
 
         document.getElementById('header-date').innerText = new Date().toDateString();
 
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+        // Register PWA
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 
-        // Capitalize note field
+        // NOTE CAPITALIZER
         document.getElementById('note').addEventListener('input', (e) => {
             e.target.value = e.target.value.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         });
 
-        // Category Sync
+        // SYNC
         onSnapshot(collection(db, "categories"), (snap) => {
-            const catSel = document.getElementById('category'); catSel.innerHTML = "";
-            dynamicCats = JSON.parse(JSON.stringify(defaultCats));
+            const catSel = document.getElementById('category'); if(!catSel) return;
+            catSel.innerHTML = ""; dynamicCats = JSON.parse(JSON.stringify(defaultCats));
             snap.forEach(d => { dynamicCats[d.data().name] = {subs: d.data().subs, icon: d.data().icon}; });
             Object.entries(dynamicCats).forEach(([k,v]) => catSel.innerHTML += `<option value="${k}">${v.icon} ${k}</option>`);
             updateSubCats();
         });
 
-        // Payment Sync
         onSnapshot(collection(db, "payment_methods"), (snap) => {
-            const accSel = document.getElementById('account'); accSel.innerHTML = "";
-            let m = [...defaultPay]; snap.forEach(d => m.push(d.data().name));
+            const accSel = document.getElementById('account'); if(!accSel) return;
+            accSel.innerHTML = ""; let m = [...defaultPay]; snap.forEach(d => m.push(d.data().name));
             [...new Set(m)].forEach(p => accSel.innerHTML += `<option value="${p}">${p}</option>`);
         });
 
-        // Loan Sync
         onSnapshot(collection(db, "loan_bases"), (snap) => { loanBases = {}; snap.forEach(d => loanBases[d.id] = d.data().total); });
 
         window.updateSubCats = () => {
             const m = document.getElementById('category').value;
-            const sub = document.getElementById('subCategory'); sub.innerHTML = "";
-            if(dynamicCats[m]) dynamicCats[m].subs.forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`);
+            const sub = document.getElementById('subCategory'); if(!sub) return;
+            sub.innerHTML = ""; if(dynamicCats[m]) dynamicCats[m].subs.forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`);
         };
 
+        // SAFETY SWITCH VIEW
         window.switchView = (v) => {
-            ['home', 'stocks', 'debt', 'report', 'settings'].forEach(view => {
-                const el = document.getElementById(`view-${view}`);
-                const nav = document.getElementById(`nav-${view}`);
-                if(el) el.classList.toggle('hidden', view !== v);
-                if(nav) nav.classList.toggle('tab-active', view === v);
-                if(nav) nav.classList.toggle('text-gray-400', view !== v);
+            const views = ['home', 'stocks', 'debt', 'report', 'settings'];
+            views.forEach(viewId => {
+                const viewEl = document.getElementById(`view-${viewId}`);
+                const navBtn = document.getElementById(`nav-${viewId}`);
+                if(viewEl) viewEl.classList.toggle('hidden', viewId !== v);
+                if(navBtn) {
+                    navBtn.classList.toggle('tab-active', viewId === v);
+                    if (viewId !== v) navBtn.classList.add('text-gray-400'); else navBtn.classList.remove('text-gray-400');
+                }
             });
             if(v === 'report') generateAnalytics();
             if(v === 'stocks') renderStocks();
@@ -223,13 +202,13 @@
                 const snap = await getDocs(q);
                 if(!snap.empty) await updateDoc(doc(db, "categories", snap.docs[0].id), { icon: i, subs: [...new Set([...snap.docs[0].data().subs, ...s])] });
                 else await addDoc(collection(db, "categories"), { name: n, icon: i, subs: s });
-                alert("Category Saved!");
+                alert("Saved!");
             }
         };
 
         window.savePaymentMethod = async () => {
             const n = document.getElementById('new-pay-method').value.trim();
-            if(n) { await addDoc(collection(db, "payment_methods"), { name: n }); alert("Bank Added!"); }
+            if(n) { await addDoc(collection(db, "payment_methods"), { name: n }); alert("Added!"); }
         };
 
         window.saveLoanBase = async () => {
@@ -238,16 +217,12 @@
             if(name && total) { await setDoc(doc(db, "loan_bases", name), { total }); alert("Loan Base Set!"); }
         };
 
-        // Transaction Sync
         onSnapshot(query(collection(db, "transactions"), orderBy("date", "desc")), (snap) => {
             allData = []; let inc = 0, exp = 0;
-            const list = document.getElementById('transaction-list'); list.innerHTML = "";
-            const dl = document.getElementById('note-history'); dl.innerHTML = "";
-            const nSet = new Set();
-            snap.forEach(d => {
+            const list = document.getElementById('transaction-list'); if(!list) return;
+            list.innerHTML = ""; snap.forEach(d => {
                 const item = {id: d.id, ...d.data()}; allData.push(item);
                 if(item.type === 'Income') inc += item.amount; else exp += item.amount;
-                if(item.note && !nSet.has(item.note)) { nSet.add(item.note); dl.innerHTML += `<option value="${item.note}">`; }
                 const icon = dynamicCats[item.category]?.icon || '💰';
                 list.innerHTML += `<div class="bg-white p-4 rounded-3xl flex justify-between items-center shadow-sm border border-gray-100" onclick='window.openModal(${JSON.stringify(item)})'>
                     <div><p class="font-black text-gray-800 text-sm leading-none">${icon} ${item.category}</p>
@@ -261,7 +236,8 @@
         });
 
         function renderDebts() {
-            const list = document.getElementById('debt-list'); let remGlobal = 0; const paid = {};
+            const list = document.getElementById('debt-list'); if(!list) return;
+            let remGlobal = 0; const paid = {};
             allData.filter(t => t.category === "Liabilities").forEach(t => paid[t.subCategory] = (paid[t.subCategory] || 0) + t.amount);
             list.innerHTML = Object.entries(paid).map(([k,v]) => {
                 const base = loanBases[k] || 0; const rem = base - v; if(rem > 0) remGlobal += rem;
@@ -276,17 +252,16 @@
             document.getElementById('total-remaining-debt').innerText = `₹${remGlobal.toLocaleString()}`;
         }
 
-        function generateAnalytics() {
+        window.generateAnalytics = () => {
             const stats = {}; allData.filter(t => t.type === 'Expense').forEach(t => stats[t.category] = (stats[t.category] || 0) + t.amount);
             const ctx = document.getElementById('expenseChart').getContext('2d'); if(myChart) myChart.destroy();
             myChart = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(stats), datasets: [{ data: Object.values(stats), backgroundColor: ['#4f46e5', '#ef4444', '#10b981', '#f59e0b'] }] }, options: { cutout: '75%', plugins: { legend: { position: 'bottom' } } } });
             document.getElementById('report-list').innerHTML = Object.entries(stats).map(([k,v]) => `<div class="flex justify-between font-bold text-sm"><span>${k}</span><span class="text-indigo-600">₹${v.toLocaleString()}</span></div>`).join('');
-        }
+        };
 
         window.downloadExcel = () => {
-            const ws = XLSX.utils.json_to_sheet(allData.map(t => ({ Date: t.date?.toDate().toLocaleDateString(), Type: t.type, Category: t.category, Sub: t.subCategory, Amt: t.amount, Note: t.note })));
-            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Financials");
-            XLSX.writeFile(wb, "Report.xlsx");
+            const ws = XLSX.utils.json_to_sheet(allData.map(t => ({ Date: t.date?.toDate().toLocaleDateString(), Type: t.type, Cat: t.category, Sub: t.subCategory, Amt: t.amount, Note: t.note })));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Report"); XLSX.writeFile(wb, "Report.xlsx");
         };
 
         window.openModal = (i=null) => { document.getElementById('editId').value=i?i.id:""; document.getElementById('deleteBtn').classList.toggle('hidden',!i); if(i){ document.getElementById('amount').value=i.amount; document.getElementById('category').value=i.category; updateSubCats(); document.getElementById('subCategory').value=i.subCategory; document.getElementById('account').value=i.account; document.getElementById('note').value=i.note; setType(i.type); } else { document.getElementById('transactionForm').reset(); setType('Expense'); } document.getElementById('entryModal').classList.remove('hidden'); setTimeout(()=>document.querySelector('.modal-slide-up').classList.add('modal-active'),10); };
