@@ -223,41 +223,57 @@
         if(localStorage.getItem('wealth_pro_key') === MASTER_PASS) { document.getElementById('lock-screen').classList.add('hidden'); document.getElementById('main-ui').classList.remove('hidden'); initApp(); }
 
         function generate12MonthSummary() {
-            const months = [];
-            const today = new Date();
-            for (let i = 11; i >= 0; i--) {
-                const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                const monthName = date.toLocaleString('default', { month: 'short', year: 'numeric' });
-                months.push({ key: monthKey, name: monthName, start: new Date(date.getFullYear(), date.getMonth(), 1), end: new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59) });
+    const months = [];
+    const today = new Date();
+    
+    // Generate last 12 months starting from CURRENT month going backwards
+    // This puts current month FIRST in the array
+    for (let i = 0; i < 12; i++) {
+        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const monthName = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+        months.push({ 
+            key: monthKey, 
+            name: monthName, 
+            start: new Date(date.getFullYear(), date.getMonth(), 1), 
+            end: new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59),
+            order: i  // 0 = current month
+        });
+    }
+    
+    // months are already in order: current month first, then previous months
+    
+    const summary = months.map(month => {
+        let income = 0, expense = 0, investment = 0;
+        allTransactions.forEach(t => {
+            const tDate = t.date?.toDate ? t.date.toDate() : (t.date ? new Date(t.date) : null);
+            if (tDate && tDate >= month.start && tDate <= month.end) {
+                if (t.type === 'Income') income += t.amount;
+                else if (t.type === 'Expense') {
+                    expense += t.amount;
+                    if (t.category && t.category.toLowerCase().includes('investment')) investment += t.amount;
+                }
             }
-            
-            const summary = months.map(month => {
-                let income = 0, expense = 0, investment = 0;
-                allTransactions.forEach(t => {
-                    const tDate = t.date?.toDate ? t.date.toDate() : (t.date ? new Date(t.date) : null);
-                    if (tDate && tDate >= month.start && tDate <= month.end) {
-                        if (t.type === 'Income') income += t.amount;
-                        else if (t.type === 'Expense') {
-                            expense += t.amount;
-                            if (t.category && t.category.toLowerCase().includes('investment')) investment += t.amount;
-                        }
-                    }
-                });
-                return { month: month.name, income, expense, investment, savings: income - expense };
-            });
-            
-            const tbody = document.getElementById('monthly-table-body');
-            tbody.innerHTML = summary.map(s => `
-                <tr class="hover:bg-gray-50">
-                    <td class="font-bold text-gray-800">${s.month}</td>
-                    <td class="text-green-600 font-bold">₹${s.income.toLocaleString()}</td>
-                    <td class="text-red-500 font-bold">₹${s.expense.toLocaleString()}</td>
-                    <td class="text-indigo-600 font-bold">₹${s.investment.toLocaleString()}</td>
-                    <td class="${s.savings >= 0 ? 'profit' : 'loss'} font-black">₹${s.savings.toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
+        });
+        return { month: month.name, income, expense, investment, savings: income - expense };
+    });
+    
+    const tbody = document.getElementById('monthly-table-body');
+    if (summary.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-400">No data available</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = summary.map(s => `
+        <tr class="hover:bg-gray-50 ${s.month === months[0].name ? 'bg-indigo-50' : ''}">
+            <td class="font-bold text-gray-800 ${s.month === months[0].name ? 'text-indigo-700' : ''}">${s.month} ${s.month === months[0].name ? '📌' : ''}</td>
+            <td class="text-green-600 font-bold">₹${s.income.toLocaleString()}</td>
+            <td class="text-red-500 font-bold">₹${s.expense.toLocaleString()}</td>
+            <td class="text-indigo-600 font-bold">₹${s.investment.toLocaleString()}</td>
+            <td class="${s.savings >= 0 ? 'profit' : 'loss'} font-black">₹${s.savings.toLocaleString()}</td>
+        </tr>
+    `).join('');
+}
 
         window.export12MonthExcel = () => {
             const tableData = [];
